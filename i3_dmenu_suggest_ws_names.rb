@@ -15,6 +15,9 @@ sClass = node["window_properties"]["class"]
 
 suggestions = []
 
+includeTitleAndClass = true
+includeName = true
+
 case node["window_properties"]["class"]
    when "Alacritty"
       suggestions.push "[TERM]"
@@ -30,33 +33,45 @@ case node["window_properties"]["class"]
       suggestions.push "[W]"
       suggestions.push "[W] #{node['name']}"
    when "code-oss"
+      dump = node['window_properties']['title'].split(' - ')
+      if(4 == dump.length) then
+         suggestions.push "[C] #{dump[dump.length - 3]}"
+      end
+      suggestions.push "[C] #{node['window_properties']['title'].split(' - ').first}"
       suggestions.push "[C]"
-      suggestions.push("[C] #{node['window_properties']['title'].split(' - ').first}")
+      includeTitleAndClass = false
+      includeName = false
+   when "firefox"
+      suggestions.push "[W] Firefox"
 end
 
-suggestions.push node["name"]
-suggestions.push "clear"
-
-if !suggestions.include? node["window_properties"]["title"] then
-   suggestions.push node["window_properties"]["title"]
+if includeName then
+   suggestions.push node["name"]
 end
 
-if !suggestions.include? node["window_properties"]["instance"] then
-   suggestions.push node["window_properties"]["instance"]
-end
+if includeTitleAndClass then
+   if !suggestions.include? node["window_properties"]["title"] then
+      suggestions.push node["window_properties"]["title"]
+   end
 
-if !suggestions.include? node["window_properties"]["class"] then
-   suggestions.push node["window_properties"]["class"]
-end
+   if !suggestions.include? node["window_properties"]["instance"] then
+      suggestions.push node["window_properties"]["instance"]
+   end
 
-if node["name"] != node["window_properties"]["title"] then
-   suggestions.push "#{node['name']} | #{node['window_properties']['title']}"
+   if !suggestions.include? node["window_properties"]["class"] then
+      suggestions.push node["window_properties"]["class"]
+   end
+
+   if node["name"] != node["window_properties"]["title"] then
+      suggestions.push "#{node['name']} | #{node['window_properties']['title']}"
    end
 end
 
+suggestions.push "clear"
+
 selection = %x[echo -e "#{suggestions.join("\n")}" | dmenu -fn 'Droid Sans Mono-14' -l 12]
 
-JSON.parse(%x[i3-msg -t get_workspaces]).each do |workspace|   
+JSON.parse(%x[i3-msg -t get_workspaces]).each do |workspace|
    if (workspace['focused']) then
       number = workspace['name'][0]
       if ["clear", '\n', ''].include? selection.chomp then

@@ -46,4 +46,14 @@ programs you use, and what you prefer the titles to contain.
 	- if greater than some const. N, then shorten
 	- shorten titles based on length, longer titles are more likely to be
      shortened than short titles
+[ ] focus last focused window in work-space, when switching to that workspace.
+    - move mouse to the side (ideally to the side of the last focused win).
+      to prevent focus from being lost.
+[ ] come up with some way to group windows into workspaces intelligently.
+    - get rid of stale terminals
+    - group by directory
+
+## bugs
+[ ] script fails to find focused window if the current workspace is empty,
+    resulting in infinite loop in script?
 
