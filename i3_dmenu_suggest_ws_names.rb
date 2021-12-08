@@ -10,60 +10,77 @@ def findFocused(parent)
    return nil
 end
 
-node = findFocused JSON.parse %x[i3-msg -t get_tree]
-sClass = node["window_properties"]["class"]
+def escapeSed(string)
+   accum = ""
+   string.each_char do |c|
+      if "$.*/[\\]^".include? c then accum.concat "\\" end
+      accum.concat c
+   end
+   return accum
+end
 
 suggestions = []
 
-includeTitleAndClass = true
-includeName = true
+node = findFocused JSON.parse %x[i3-msg -t get_tree]
 
-case node["window_properties"]["class"]
-   when "Alacritty"
-      suggestions.push "[TERM]"
+unless node.nil? or "workspace" == node["type"]
+   puts JSON.generate(node)
+   sClass = node["window_properties"]["class"]
 
-      # check if we are editing something with kakoune
-      if node["window_properties"]["title"].match? "Kakoune" then
-         suggestions.push("[K]")
-         suggestions.push( "[K] #{node['window_properties']['title'].split('-').first.split(' ').first}")
-      else
-         suggestions.push "[T] #{node['name']}"
+   includeTitleAndClass = true
+   includeName = true
+
+   case node["window_properties"]["class"]
+      when "Alacritty"
+         suggestions.push "[TERM]"
+
+         # check if we are editing something with kakoune
+         if node["window_properties"]["title"].match? "Kakoune" then
+            suggestions.push("[K]")
+            suggestions.push( "[K] #{node['window_properties']['title'].split('-').first.split(' ').first}")
+         else
+            suggestions.push "[T] #{node['name']}"
+         end
+      when "Chromium"
+         suggestions.push "[W]"
+         if node["name"].include? "Desmos" then
+	         suggestions.push "[W] Desmos"
+         else
+            suggestions.push "[W] #{node['name']}"
+         end
+      when "code-oss"
+         dump = node['window_properties']['title'].split(' - ')
+         if(4 == dump.length) then
+            suggestions.push "[C] #{dump[dump.length - 3]}"
+         end
+         suggestions.push "[C] #{node['window_properties']['title'].split(' - ').first}"
+         suggestions.push "[C]"
+         includeTitleAndClass = false
+         includeName = false
+      when "firefox"
+         suggestions.push "[W] Firefox"
+   end
+
+   if includeName then
+      suggestions.push node["name"]
+   end
+
+   if includeTitleAndClass then
+      if !suggestions.include? node["window_properties"]["title"] then
+         suggestions.push node["window_properties"]["title"]
       end
-   when "Chromium"
-      suggestions.push "[W]"
-      suggestions.push "[W] #{node['name']}"
-   when "code-oss"
-      dump = node['window_properties']['title'].split(' - ')
-      if(4 == dump.length) then
-         suggestions.push "[C] #{dump[dump.length - 3]}"
+
+      if !suggestions.include? node["window_properties"]["instance"] then
+         suggestions.push node["window_properties"]["instance"]
       end
-      suggestions.push "[C] #{node['window_properties']['title'].split(' - ').first}"
-      suggestions.push "[C]"
-      includeTitleAndClass = false
-      includeName = false
-   when "firefox"
-      suggestions.push "[W] Firefox"
-end
 
-if includeName then
-   suggestions.push node["name"]
-end
+      if !suggestions.include? node["window_properties"]["class"] then
+         suggestions.push node["window_properties"]["class"]
+      end
 
-if includeTitleAndClass then
-   if !suggestions.include? node["window_properties"]["title"] then
-      suggestions.push node["window_properties"]["title"]
-   end
-
-   if !suggestions.include? node["window_properties"]["instance"] then
-      suggestions.push node["window_properties"]["instance"]
-   end
-
-   if !suggestions.include? node["window_properties"]["class"] then
-      suggestions.push node["window_properties"]["class"]
-   end
-
-   if node["name"] != node["window_properties"]["title"] then
-      suggestions.push "#{node['name']} | #{node['window_properties']['title']}"
+      if node["name"] != node["window_properties"]["title"] then
+         suggestions.push "#{node['name']} | #{node['window_properties']['title']}"
+      end
    end
 end
 
@@ -80,10 +97,9 @@ JSON.parse(%x[i3-msg -t get_workspaces]).each do |workspace|
          newName = "#{number}:{#{number}} #{selection.chomp}"
       end
       %x[i3-msg 'rename workspace "#{workspace['name']}" to "#{newName}"']
-      %x[sed -i '#{number}s/.*/#{newName}/' "/tmp/i3/workspace_names.txt"]
+      %x[sed -i '#{number}s/.*/#{escapeSed(newName)}/' "/tmp/i3/workspace_names.txt"]
       exit(true)
    end
 end
 
 exit true
-

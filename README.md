@@ -4,7 +4,7 @@ keybindings.
 Additionally, the script for renaming the work-space makes suggestions
 on what the title can be, based on the currently focused window.
 
-## Motivation 
+## Motivation
 Usually, when you rename a work-space, then the normal key-binding
 `bindsym $mod+1 workspace 1` won't work anymore, because the command expects
 the work-space name as an argument, and not the work-space number. This
@@ -17,7 +17,7 @@ Add the following to your i3 config:
 # create the temporary directory in which the workspace names will be cached
 exec_always --no-startup-id "mkdir -p /tmp/i3"
 
-# bind the script to a key. 
+# bind the script to a key.
 bindsym $mod+o exec --no-startup-id /path/to/script/i3_dmenu_suggest_ws_names.rb
 
 bindsym $mod+1 exec /path/to/script/i3_goto_workspace.sh 1
@@ -52,9 +52,18 @@ programs you use, and what you prefer the titles to contain.
 [ ] come up with some way to group windows into workspaces intelligently.
     - get rid of stale terminals
     - group by directory
+[ ] (assoc. w. bug 3) write init script which chicks if `workspace_names.txt`
+    exists, if so uses that for assigning initial work-space names, instead
+    of 1 through 9, 0.
+[ ] **HIGH PRIORITY** maybe this doesn't belong here, but write a script to
+    jump to the next empty work-space (i.e. void of windows).
 
-## bugs
-[ ] script fails to find focused window if the current workspace is empty,
+## Bugs
+[x] 1. script fails to find focused window if the current workspace is empty,
     resulting in infinite loop in script?
+[x] 2. sed occasionally fails to put title into `workspace_names.txt` because the
+    string is not escaped.
+[ ] 3. existing work-space names are not used during i3 restart, if
+    `workspace_names.txt` is still present in `/tmp/i3/`.
+[ ] 4. renaming work-space with `'` character doesn't work.
 
- - test
