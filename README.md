@@ -57,3 +57,4 @@ programs you use, and what you prefer the titles to contain.
 [ ] script fails to find focused window if the current workspace is empty,
     resulting in infinite loop in script?
 
+ - test
