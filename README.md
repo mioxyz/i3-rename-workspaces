@@ -38,7 +38,8 @@ programs you use, and what you prefer the titles to contain.
 
 ## TODO
 [ ] impl. an auto-clear script, which renames all work-spaces back to numbers,
-    without the curly braces.
+    without the curly braces (before switching workspaces).
+
 [ ] impl. an auto-name script, which renames all work-spaces based on it's best
     guess.
 [ ] impl. a shortening function, which shortens long titles sensibly.
@@ -52,10 +53,10 @@ programs you use, and what you prefer the titles to contain.
 [ ] come up with some way to group windows into workspaces intelligently.
     - get rid of stale terminals
     - group by directory
-[ ] (assoc. w. bug 3) write init script which chicks if `workspace_names.txt`
+[+] (assoc. w. bug 3) write init script which chicks if `workspace_names.txt`
     exists, if so uses that for assigning initial work-space names, instead
     of 1 through 9, 0.
-[ ] **HIGH PRIORITY** maybe this doesn't belong here, but write a script to
+[+] **HIGH PRIORITY** maybe this doesn't belong here, but write a script to
     jump to the next empty work-space (i.e. void of windows).
 
 ## Bugs
