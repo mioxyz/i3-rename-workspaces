@@ -25,8 +25,8 @@ node = findFocused JSON.parse %x[i3-msg -t get_tree]
 
 unless node.nil? or "workspace" == node["type"]
    puts JSON.generate(node)
-   sClass = node["window_properties"]["class"]
-
+   #sClass = node["window_properties"]["class"]
+   sTitle = node["window_properties"]["title"]
    includeTitleAndClass = true
    includeName = true
 
@@ -35,12 +35,15 @@ unless node.nil? or "workspace" == node["type"]
          suggestions.push "[TERM]"
 
          # check if we are editing something with kakoune
-         if node["window_properties"]["title"].match? "Kakoune" then
+         if sTitle.match? "Kakoune" then
             suggestions.push("[K]")
-            suggestions.push( "[K] #{node['window_properties']['title'].split('-').first.split(' ').first}")
+            suggestions.push( "[K] #{sTitle.split('-').first.split(' ').first}")
+         elsif sTitle.match? "ranger:" then
+            suggestions.push( "[R] #{sTitle[7, sTitle.length]}")
          else
             suggestions.push "[T] #{node['name']}"
          end
+
       when "Chromium"
          suggestions.push "[W]"
          if node["name"].include? "Desmos" then
@@ -49,11 +52,11 @@ unless node.nil? or "workspace" == node["type"]
             suggestions.push "[W] #{node['name']}"
          end
       when "code-oss"
-         dump = node['window_properties']['title'].split(' - ')
+         dump = sTitle.split(' - ')
          if(4 == dump.length) then
             suggestions.push "[C] #{dump[dump.length - 3]}"
          end
-         suggestions.push "[C] #{node['window_properties']['title'].split(' - ').first}"
+         suggestions.push "[C] #{sTitle.split(' - ').first}"
          suggestions.push "[C]"
          includeTitleAndClass = false
          includeName = false
@@ -79,7 +82,7 @@ unless node.nil? or "workspace" == node["type"]
       end
 
       if node["name"] != node["window_properties"]["title"] then
-         suggestions.push "#{node['name']} | #{node['window_properties']['title']}"
+         suggestions.push "#{node['name']} | #{sTitle}"
       end
    end
 end

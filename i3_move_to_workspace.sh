@@ -4,7 +4,7 @@
 # If the line is missing, then we assume that no special name has been assigned.
 workspace_name=$(sed "$1q;d" "/tmp/i3/workspace_names.txt")
 if [ -z "$workspace_name" ]; then
-   i3-msg "workspace \"$1\""
+   i3-msg "move container to workspace \"$1\""
 else
-   i3-msg "workspace \"$workspace_name\""
+   i3-msg "move container to workspace \"$workspace_name\""
 fi
